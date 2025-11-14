@@ -28,3 +28,11 @@ curl -X POST -d "username=john&password=secret" --proxy http://127.0.0.1:8080 ht
 # JSON form  
 curl -X POST -H "Content-Type: application/json" -d '{"user":"john"}' --proxy http://127.0.0.1:8080 https://httpbin.org/post
 ```
+
+## RELEASE
+
+```sh
+git tag v0.0.1
+git push origin --tags
+go list -m github.com/n0z0/noproxy@v0.0.1
+```
