@@ -1,5 +1,11 @@
 # Session Cookies and Data
 
+Install Cert Root CA
+
+```sh
+certutil -addstore -f "ROOT" root-ca.crt
+```
+
 ## Test
 
 ```txt
