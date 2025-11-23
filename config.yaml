@@ -1,0 +1,56 @@
+# ===================================
+# Konfigurasi Dasar Clash
+# ===================================
+mixed-port: 7890
+allow-lan: true
+bind-address: '0.0.0.0'
+mode: rule
+log-level: info
+external-controller: '127.0.0.1:9090'
+
+# ===================================
+# Definisi Proxy Upstream
+# Ini adalah proxy Anda yang berjalan di 127.0.0.1:8080
+# ===================================
+proxies:
+  - name: PROXY-LOKAL
+    type: http
+    server: 127.0.0.1
+    port: 8080
+    # Jika proxy Anda membutuhkan username/password, hapus tanda # di bawah ini:
+    # username: "username-anda"
+    # password: "password-anda"
+
+# ===================================
+# Grup Proxy
+# Memudahkan untuk mengelola dan memilih proxy
+# ===================================
+proxy-groups:
+  - name: PROXY-UTAMA
+    type: select
+    proxies:
+      - PROXY-LOKAL
+      - DIRECT # Opsi untuk melewati proxy, berguna untuk troubleshooting
+
+# ===================================
+# Aturan Routing
+# Menentukan traffic mana yang lewat proxy
+# ===================================
+rules:
+  # --- Aturan 1: Traffic Lokal & LAN ---
+  # Semua traffic ke jaringan lokal (rumah/kantor) dikirim langsung (DIRECT)
+  # Ini sangat penting untuk mencegah loop dan agar perangkat lokal tetap bisa berkomunikasi.
+  - DOMAIN-SUFFIX,local,DIRECT
+  - IP-CIDR,127.0.0.0/8,DIRECT
+  - IP-CIDR,172.16.0.0/12,DIRECT
+  - IP-CIDR,192.168.0.0/16,DIRECT
+  - IP-CIDR,10.0.0.0/8,DIRECT
+  - IP-CIDR,224.0.0.0/4,DIRECT
+  - IP-CIDR6,::1/128,DIRECT
+  - IP-CIDR6,fc00::/7,DIRECT
+  - IP-CIDR6,fe80::/10,DIRECT
+
+  # --- Aturan 2: Aturan Utama ---
+  # Semua traffic yang TIDAK cocok dengan aturan di atas akan dikirim ke grup PROXY-UTAMA.
+  # Karena grup PROXY-UTAMA hanya berisi PROXY-LOKAL, maka semua traffic internet akan lewat 127.0.0.1:8080.
+  - MATCH,PROXY-UTAMA
